@@ -60,7 +60,7 @@ class JSONRenderer(renderers.JSONRenderer):
         if view and hasattr(view, 'action') and view.action == 'list' and isinstance(data, dict) and 'results' in data:
             # Check for paginated results
             results = data["results"]
-            
+
             resource_serializer = results.serializer
 
             # Get the serializer fields
@@ -90,7 +90,8 @@ class JSONRenderer(renderers.JSONRenderer):
         if isinstance(data, dict) and data.get('links'):
             render_data['links'] = data.get('links')
 
-        render_data['data'] = json_api_data
+         if data != json_api_data:
+            render_data['data'] = json_api_data
 
         if len(json_api_included) > 0:
             # Iterate through compound documents to remove duplicates
