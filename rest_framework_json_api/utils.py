@@ -10,7 +10,7 @@ from django.utils.six.moves.urllib.parse import urlparse, urlunparse
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.serializers import BaseSerializer, ListSerializer, ModelSerializer
-from rest_framework.relations import RelatedField, HyperlinkedRelatedField, PrimaryKeyRelatedField
+from rest_framework.relations import RelatedField, HyperlinkedRelatedField, PrimaryKeyRelatedField, HyperlinkedIdentityField
 from rest_framework.settings import api_settings
 from rest_framework.exceptions import APIException
 
