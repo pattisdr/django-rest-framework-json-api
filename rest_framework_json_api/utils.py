@@ -197,6 +197,7 @@ def extract_attributes(fields, resource):
 
     return format_keys(data)
 
+
 def extract_relationships(fields, resource):
     data = OrderedDict()
     for field_name, field in six.iteritems(fields):
@@ -207,7 +208,7 @@ def extract_relationships(fields, resource):
         if isinstance(field, HyperlinkedIdentityField):
             count = resource[field_name][1]
             if type(resource[field_name]) == list and count is not None:
-                related = {
+                links_obj = {
                             'href': resource[field_name][0],
                             'meta': {
                                 'count': resource[field_name][1]
@@ -216,114 +217,31 @@ def extract_relationships(fields, resource):
             else:
                 if type(resource[field_name]) == list:
                     resource[field_name] = resource[field_name][0]
-                related = resource[field_name]
+                links_obj = resource[field_name]
 
-            data.update(
-                {
-                    field_name: {
-                        'links': {
-                            'related': related
+            if field_name == 'parent':
+                data.update(
+                    {
+                        field_name: {
+                            'links': {
+                                'self': links_obj
+                            }
                         }
                     }
-                }
-            )
+                )
+            else:
+                data.update(
+                    {
+                        field_name: {
+                            'links': {
+                                'related': links_obj
+                            }
+                        }
+                    }
+                )
+
 
     return format_keys(data)
-
-# def extract_relationships(fields, resource):
-#     data = OrderedDict()
-#     for field_name, field in six.iteritems(fields):
-#         # Skip URL field
-#         if field_name == api_settings.URL_FIELD_NAME:
-#             continue
-#
-#         # Skip fields without relations
-#         if not isinstance(field, (RelatedField, ManyRelatedField, BaseSerializer)):
-#             continue
-#
-#         if isinstance(field, (PrimaryKeyRelatedField, HyperlinkedRelatedField)):
-#             relation_type = get_related_resource_type(field)
-#
-#             if resource[field_name] is not None:
-#                 if isinstance(field, PrimaryKeyRelatedField):
-#                     relation_id = encoding.force_text(resource[field_name])
-#                 elif isinstance(field, HyperlinkedRelatedField):
-#                     relation_id = extract_id_from_url(resource[field_name])
-#             else:
-#                 relation_id = None
-#
-#             data.update(
-#                 {
-#                     field_name: {
-#                         'data': (OrderedDict([
-#                             ('type', relation_type), ('id', relation_id)
-#                         ]) if relation_id is not None else None)
-#                     }
-#                 }
-#             )
-#             continue
-#
-#         if isinstance(field, ManyRelatedField):
-#             relation_data = list()
-#
-#             relation = field.child_relation
-#
-#             relation_type = get_related_resource_type(relation)
-#
-#             if isinstance(relation, HyperlinkedRelatedField):
-#                 for link in resource[field_name]:
-#                     relation_data.append(OrderedDict([('type', relation_type), ('id', extract_id_from_url(link))]))
-#
-#                 data.update({field_name: {'data': relation_data}})
-#                 continue
-#
-#             if isinstance(relation, PrimaryKeyRelatedField):
-#                 for pk in resource[field_name]:
-#                     relation_data.append(OrderedDict([('type', relation_type), ('id', encoding.force_text(pk))]))
-#
-#                 data.update({field_name: {'data': relation_data}})
-#                 continue
-#
-#         if isinstance(field, ListSerializer):
-#             relation_data = list()
-#
-#             serializer = field.child
-#             relation_model = serializer.Meta.model
-#             relation_type = inflection.pluralize(relation_model.__name__).lower()
-#
-#             # Get the serializer fields
-#             serializer_fields = get_serializer_fields(serializer)
-#             serializer_data = resource[field_name]
-#             if isinstance(serializer_data, list):
-#                 for serializer_resource in serializer_data:
-#                     relation_data.append(
-#                         OrderedDict([
-#                             ('type', relation_type), ('id', extract_id(serializer_fields, serializer_resource))
-#                         ]))
-#
-#                 data.update({field_name: {'data': relation_data}})
-#                 continue
-#
-#         if isinstance(field, ModelSerializer):
-#             relation_model = field.Meta.model
-#             relation_type = inflection.pluralize(relation_model.__name__).lower()
-#
-#             # Get the serializer fields
-#             serializer_fields = get_serializer_fields(field)
-#             serializer_data = resource[field_name]
-#             data.update({
-#                 field_name: {
-#                     'data': (
-#                         OrderedDict([
-#                             ('type', relation_type),
-#                             ('id', extract_id(serializer_fields, serializer_data))
-#                         ]) if resource[field_name] else None)
-#                 }
-#             })
-#             continue
-#
-#     return format_keys(data)
-
 
 def extract_included(fields, resource):
     included_data = list()
