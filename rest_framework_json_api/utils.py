@@ -134,7 +134,7 @@ def build_json_resource_obj(fields, resource, resource_name):
         resource_data.append(('relationships', relationships))
     # Add 'self' link if field is present and valid
     if api_settings.URL_FIELD_NAME in resource:
-        resource_data.append(('links', {'self': resource[api_settings.URL_FIELD_NAME]}))
+        resource_data.append(('links', resource[api_settings.URL_FIELD_NAME]))
     return OrderedDict(resource_data)
 
 
