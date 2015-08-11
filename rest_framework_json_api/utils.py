@@ -206,13 +206,11 @@ def extract_relationships(fields, resource):
             continue
 
         if isinstance(field, HyperlinkedIdentityField):
-            count = resource[field_name][1]
-            if type(resource[field_name]) == list and count is not None:
+            meta = resource[field_name][1]
+            if type(resource[field_name]) == list and meta is not None:
                 links_obj = {
                             'href': resource[field_name][0],
-                            'meta': {
-                                'count': resource[field_name][1]
-                           }
+                            'meta': meta
                 }
             else:
                 if type(resource[field_name]) == list:
