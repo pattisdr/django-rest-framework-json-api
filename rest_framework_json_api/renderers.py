@@ -50,7 +50,7 @@ class JSONRenderer(renderers.JSONRenderer):
             if len(data) > 1:
                 data.sort(key=lambda x: x.get('source', {}).get('pointer', ''))
 
-            if 'detail' not in data:
+            if type(data) == dict and 'detail' not in data:
                 data = {'detail': data}
 
             return super(JSONRenderer, self).render(
