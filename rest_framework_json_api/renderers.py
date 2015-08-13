@@ -100,6 +100,9 @@ class JSONRenderer(renderers.JSONRenderer):
         if isinstance(data, dict) and data.get('meta'):
             render_data['meta'] = data.get('meta')
 
+        if render_data == OrderedDict():
+            render_data['data'] = json_api_data
+
         if len(json_api_included) > 0:
             # Iterate through compound documents to remove duplicates
             seen = set()
