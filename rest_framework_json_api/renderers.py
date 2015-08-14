@@ -51,7 +51,7 @@ class JSONRenderer(renderers.JSONRenderer):
                 data.sort(key=lambda x: x.get('source', {}).get('pointer', ''))
 
             if type(data) == dict and 'detail' not in data:
-                data = {'detail': data}
+                data = {'detail': data.values()[0][0]}
 
             return super(JSONRenderer, self).render(
                 {resource_name: [data]}, accepted_media_type, renderer_context
