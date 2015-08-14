@@ -206,28 +206,30 @@ def extract_relationships(fields, resource):
             continue
 
         if isinstance(field, HyperlinkedIdentityField):
-            meta = resource[field_name][1]
-            if type(resource[field_name]) == list and meta is not None:
-                links_obj = {
-                            'href': resource[field_name][0],
-                            'meta': meta
-                }
-            else:
-                if type(resource[field_name]) == list:
-                    resource[field_name] = resource[field_name][0]
-                links_obj = resource[field_name]
+            if type(resource[field_name]) == dict:
+                meta = resource[field_name]['meta']
+                if meta is None:
+                    links_obj = resource[field_name]['url']
+                else:
+                    links_obj = {
+                        'href': resource[field_name]['url'],
+                        'meta': resource[field_name]['meta']
+                    }
 
-            if field_name == 'parent':
                 data.update(
                     {
                         field_name: {
                             'links': {
-                                'self': links_obj
+                                resource[field_name]['link_type']: links_obj
                             }
                         }
                     }
+
+
                 )
             else:
+                links_obj = resource[field_name]
+
                 data.update(
                     {
                         field_name: {
@@ -235,11 +237,10 @@ def extract_relationships(fields, resource):
                                 'related': links_obj
                             }
                         }
-                    }
-                )
-
+                    })
 
     return format_keys(data)
+
 
 def extract_included(fields, resource):
     included_data = list()
