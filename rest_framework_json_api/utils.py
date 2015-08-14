@@ -205,6 +205,69 @@ def extract_relationships(fields, resource):
         if field_name == api_settings.URL_FIELD_NAME:
             continue
 
+        # Skip fields without relations
+        if not isinstance(field, (RelatedField, ManyRelatedField, BaseSerializer)):
+            continue
+
+        if isinstance(field, ManyRelatedField):
+            relation_data = list()
+
+            relation = field.child_relation
+
+            relation_type = get_related_resource_type(relation)
+
+            if isinstance(relation, HyperlinkedRelatedField):
+                for link in resource.get(field_name, list()):
+                    relation_data.append(OrderedDict([('type', relation_type), ('id', extract_id_from_url(link))]))
+
+                data.update({field_name: {'data': relation_data}})
+                continue
+
+            if isinstance(relation, PrimaryKeyRelatedField):
+                for pk in resource.get(field_name, list()):
+                    relation_data.append(OrderedDict([('type', relation_type), ('id', encoding.force_text(pk))]))
+
+                data.update({field_name: {'data': relation_data}})
+                continue
+
+        if isinstance(field, ListSerializer):
+            relation_data = list()
+
+            serializer = field.child
+            relation_model = serializer.Meta.model
+            relation_type = inflection.pluralize(relation_model.__name__).lower()
+
+            # Get the serializer fields
+            serializer_fields = get_serializer_fields(serializer)
+            serializer_data = resource.get(field_name)
+            if isinstance(serializer_data, list):
+                for serializer_resource in serializer_data:
+                    relation_data.append(
+                        OrderedDict([
+                            ('type', relation_type), ('id', extract_id(serializer_fields, serializer_resource))
+                        ]))
+
+                data.update({field_name: {'data': relation_data}})
+                continue
+
+        if isinstance(field, ModelSerializer):
+            relation_model = field.Meta.model
+            relation_type = inflection.pluralize(relation_model.__name__).lower()
+
+            # Get the serializer fields
+            serializer_fields = get_serializer_fields(field)
+            serializer_data = resource.get(field_name)
+            data.update({
+                field_name: {
+                    'data': (
+                        OrderedDict([
+                            ('type', relation_type),
+                            ('id', extract_id(serializer_fields, serializer_data))
+                        ]) if resource.get(field_name) else None)
+                }
+            })
+            continue
+
         if isinstance(field, HyperlinkedIdentityField):
             if type(resource[field_name]) == dict:
                 meta = resource[field_name]['meta']
