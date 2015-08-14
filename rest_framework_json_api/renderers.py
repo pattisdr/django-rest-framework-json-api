@@ -54,7 +54,7 @@ class JSONRenderer(renderers.JSONRenderer):
                 data = {'detail': data}
 
             return super(JSONRenderer, self).render(
-                {resource_name: data}, accepted_media_type, renderer_context
+                {resource_name: [data]}, accepted_media_type, renderer_context
             )
 
         json_api_included = list()
