@@ -8,6 +8,18 @@ from . import utils
 from rest_framework.relations import RelatedField
 from rest_framework.settings import api_settings
 
+def get_keys(hash, key_list=[]):
+    nested_dicts = []
+    for key in hash:
+        value = hash[key]
+        if isinstance(value, dict):
+            nested_dicts.append(value)
+        else:
+            key_list.append(key)
+        for nested in nested_dicts:
+            get_keys(nested, key_list)
+    return key_list
+
 
 class JSONRenderer(renderers.JSONRenderer):
     """
@@ -51,7 +63,7 @@ class JSONRenderer(renderers.JSONRenderer):
                 data.sort(key=lambda x: x.get('source', {}).get('pointer', ''))
 
             if isinstance(data, dict):
-                if 'detail' not in data:
+                if 'detail' not in get_keys(data):
                     data = [{'detail': data.values()[0]}]
                 else:
                     data = [data]
