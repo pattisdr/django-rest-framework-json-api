@@ -2,11 +2,10 @@
 Renderers
 """
 from collections import OrderedDict
+
 from rest_framework import renderers
 
 from . import utils
-from rest_framework.relations import RelatedField
-from rest_framework.settings import api_settings
 
 def get_keys(hash, key_list=[]):
     nested_dicts = []
@@ -42,6 +41,7 @@ class JSONRenderer(renderers.JSONRenderer):
     """
 
     media_type = 'application/vnd.api+json'
+    format = 'vnd.api+json'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         # Get the resource name.
