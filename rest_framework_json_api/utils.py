@@ -12,7 +12,6 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework.serializers import BaseSerializer, ListSerializer, ModelSerializer
 from rest_framework.relations import RelatedField, HyperlinkedRelatedField, PrimaryKeyRelatedField, HyperlinkedIdentityField
 from rest_framework.settings import api_settings
-from rest_framework.exceptions import APIException
 
 try:
     from rest_framework.compat import OrderedDict
@@ -269,7 +268,7 @@ def extract_relationships(fields, resource):
             continue
 
         if isinstance(field, HyperlinkedIdentityField):
-            if type(resource[field_name]) == dict:
+            if isinstance(resource[field_name], dict):
                 meta = resource[field_name]['meta']
                 if meta is None:
                     links_obj = resource[field_name]['url']
