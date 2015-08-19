@@ -49,6 +49,11 @@ class JSONRenderer(renderers.JSONRenderer):
         if resource_name == 'errors':
             if len(data) > 1 and isinstance(data, list):
                 data.sort(key=lambda x: x.get('source', {}).get('pointer', ''))
+            if isinstance(data, dict):
+                if 'detail' not in data:
+                    data = [{'detail': data.values()[0]}]
+                else:
+                    data = [data]
             return super(JSONRenderer, self).render(
                 {resource_name: data}, accepted_media_type, renderer_context
             )
