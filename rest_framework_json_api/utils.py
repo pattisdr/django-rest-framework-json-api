@@ -209,28 +209,6 @@ def extract_relationships(fields, resource):
         if not isinstance(field, (RelatedField, ManyRelatedField, BaseSerializer)):
             continue
 
-        if isinstance(field, (PrimaryKeyRelatedField, HyperlinkedRelatedField)):
-            relation_type = get_related_resource_type(field)
-
-            if resource.get(field_name) is not None:
-                if isinstance(field, PrimaryKeyRelatedField):
-                    relation_id = encoding.force_text(resource.get(field_name))
-                elif isinstance(field, HyperlinkedRelatedField):
-                    relation_id = extract_id_from_url(resource.get(field_name))
-            else:
-                relation_id = None
-
-            data.update(
-                {
-                    field_name: {
-                        'data': (OrderedDict([
-                            ('type', relation_type), ('id', relation_id)
-                        ]) if relation_id is not None else None)
-                    }
-                }
-            )
-            continue
-
         if isinstance(field, ManyRelatedField):
             relation_data = list()
 
