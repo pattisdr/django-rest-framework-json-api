@@ -268,7 +268,8 @@ def extract_relationships(fields, resource):
             continue
 
         if isinstance(field, HyperlinkedIdentityField):
-            if isinstance(resource[field_name], dict):
+            if isinstance(resource[field_name], dict) and 'meta' in resource[field_name] and \
+                            'link_type' in resource[field_name]:
                 meta = resource[field_name]['meta']
                 if meta is None:
                     links_obj = resource[field_name]['url']
