@@ -95,7 +95,7 @@ class JSONRenderer(renderers.JSONRenderer):
         if isinstance(data, dict) and data.get('links'):
             render_data['links'] = data.get('links')
 
-         if data != json_api_data:
+        if data != json_api_data:
             render_data['data'] = json_api_data
 
         if isinstance(data, dict) and data.get('meta'):
