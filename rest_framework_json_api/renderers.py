@@ -95,7 +95,14 @@ class JSONRenderer(renderers.JSONRenderer):
         if isinstance(data, dict) and data.get('links'):
             render_data['links'] = data.get('links')
 
-        render_data['data'] = json_api_data
+         if data != json_api_data:
+            render_data['data'] = json_api_data
+
+        if isinstance(data, dict) and data.get('meta'):
+            render_data['meta'] = data.get('meta')
+
+        if render_data == OrderedDict():
+            render_data = data
 
         if len(json_api_included) > 0:
             # Iterate through compound documents to remove duplicates
@@ -109,9 +116,6 @@ class JSONRenderer(renderers.JSONRenderer):
 
             # Sort the items by type then by id
             render_data['included'] = sorted(unique_compound_documents, key=lambda item: (item['type'], item['id']))
-
-        if isinstance(data, dict) and data.get('meta'):
-            render_data['meta'] = data.get('meta')
 
         return super(JSONRenderer, self).render(
             render_data, accepted_media_type, renderer_context
