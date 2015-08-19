@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import six, encoding
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.serializers import BaseSerializer, ListSerializer, ModelSerializer
-from rest_framework.relations import RelatedField, HyperlinkedRelatedField, PrimaryKeyRelatedField
+from rest_framework.relations import RelatedField, HyperlinkedRelatedField, PrimaryKeyRelatedField, HyperlinkedIdentityField
 from rest_framework.settings import api_settings
 from rest_framework.exceptions import APIException
 
@@ -289,6 +289,42 @@ def extract_relationships(fields, resource):
                 }
             })
             continue
+
+        if isinstance(field, HyperlinkedIdentityField):
+            if isinstance(resource[field_name], dict) and 'meta' in resource[field_name] and \
+                            'link_type' in resource[field_name]:
+                meta = resource[field_name]['meta']
+                if meta is None:
+                    links_obj = resource[field_name]['url']
+                else:
+                    links_obj = {
+                        'href': resource[field_name]['url'],
+                        'meta': resource[field_name]['meta']
+                    }
+
+                data.update(
+                    {
+                        field_name: {
+                            'links': {
+                                resource[field_name]['link_type']: links_obj
+                            }
+                        }
+                    }
+
+
+                )
+            else:
+                links_obj = resource[field_name]
+
+                data.update(
+                    {
+                        field_name: {
+                            'links': {
+                                'related': links_obj
+                            }
+                        }
+                    })
+
 
     return format_keys(data)
 
