@@ -132,9 +132,8 @@ def build_json_resource_obj(fields, resource, resource_name):
     if relationships:
         resource_data.append(('relationships', relationships))
     # Add 'self' link if field is present and valid
-    if api_settings.URL_FIELD_NAME in resource and \
-            isinstance(fields[api_settings.URL_FIELD_NAME], RelatedField):
-        resource_data.append(('links', {'self': resource[api_settings.URL_FIELD_NAME]}))
+    if api_settings.URL_FIELD_NAME in resource:
+        resource_data.append(('links', resource[api_settings.URL_FIELD_NAME]))
     return OrderedDict(resource_data)
 
 
@@ -186,7 +185,7 @@ def extract_attributes(fields, resource):
     data = OrderedDict()
     for field_name, field in six.iteritems(fields):
         # ID is always provided in the root of JSON API so remove it from attrs
-        if field_name == 'id':
+        if field_name == 'id' or field_name == api_settings.URL_FIELD_NAME:
             continue
         # Skip fields with relations
         if isinstance(field, (RelatedField, BaseSerializer, ManyRelatedField)):
